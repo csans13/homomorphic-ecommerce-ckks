@@ -61,7 +61,7 @@ CREATE TABLE transactions (
     balance_after_ct BLOB,
     ct_level INTEGER,
     ct_scale REAL,
-    created_at TEXT NOT NULL DEFAULT (strftime('%FT%R:%fZ', 'now'))
+    created_at TEXT NOT NULL DEFAULT (strftime('%FT%R:%fZ', 'now')),
     UNIQUE (user_id, user_seq)
 );
 
