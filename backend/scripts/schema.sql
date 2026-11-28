@@ -2,14 +2,14 @@ PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
 PRAGMA busy_timeout = 5000;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id TEXT PRIMARY KEY,
     username TEXT,
-    status TEXT NOT NULL DEFAULT 'active' CHECK (STATUS in ('active','disabled')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'disabled')),
     activated_at TEXT NOT NULL DEFAULT (strftime('%FT%R:%fZ', 'now')) --<YYYY-MM-DD>T<HH:MM:SS.SSS>Z
 );
 
-CREATE TABLE user_crypto (
+CREATE TABLE IF NOT EXISTS user_crypto (
   user_id TEXT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
   profile TEXT NOT NULL,
   poly_modulus_degree INTEGER NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE user_crypto (
 
 -- encrypted balance
 -- ct = ciphertext
-CREATE TABLE balances (
+CREATE TABLE IF NOT EXISTS balances (
     user_id TEXT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
     balance_ct BLOB NOT NULL,
     ct_level INTEGER,
@@ -36,7 +36,7 @@ CREATE TABLE balances (
     updated_at TEXT NOT NULL DEFAULT (strftime('%FT%R:%fZ', 'now'))
 );
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     product_id TEXT PRIMARY KEY,
     numeric_id INTEGER NOT NULL UNIQUE,
     name TEXT NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE products (
     active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1))
 );
 
-CREATE TABLE discounts (
+CREATE TABLE IF NOT EXISTS discounts (
     code TEXT PRIMARY KEY,
     numeric_id INTEGER NOT NULL UNIQUE,
     percent REAL NOT NULL DEFAULT 0 CHECK (percent>=0 AND percent<=1),
@@ -52,7 +52,7 @@ CREATE TABLE discounts (
     active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1))
 );
 
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
     tx_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     user_seq INTEGER NOT NULL,
@@ -65,4 +65,4 @@ CREATE TABLE transactions (
     UNIQUE (user_id, user_seq)
 );
 
-CREATE INDEX idx_tx_user_created ON transactions(user_id, user_seq DESC);
+CREATE INDEX IF NOT EXISTS idx_tx_user_created ON transactions(user_id, user_seq DESC);
